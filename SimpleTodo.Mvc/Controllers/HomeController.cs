@@ -84,8 +84,11 @@ namespace SimpleTodo.Mvc.Controllers
             todo.IsComplete = request.IsComplete;
             todo.CompletedDate = request.IsComplete ? DateTime.Now : (DateTime?) null;
 
-            if (todo.IsRecurring)
+            if (todo.IsRecurring && request.IsComplete)
                 _context.Add(CreateFutureTodo(todo));
+
+            if(todo.IsRecurring && !request.IsComplete)
+                RemoveFutureRecurringTodos(todo.Id);
 
             _context.SaveChanges();
 
@@ -104,12 +107,7 @@ namespace SimpleTodo.Mvc.Controllers
 
             if (todo.IsRecurring)
             {
-                var futureTasks = _context.Todos
-                    .Where(t => t.CreatedFrom == request.Id &&
-                                t.StartDate > DateTime.Now)
-                    .ToList();
-
-                if (futureTasks.Any()) _context.Todos.RemoveRange(futureTasks);
+                RemoveFutureRecurringTodos(todo.Id);
             }
             else if (todo.IsComplete)
             {
@@ -146,6 +144,16 @@ namespace SimpleTodo.Mvc.Controllers
                     t.StartDate.Date <= DateTime.Now.Date)
                 .OrderByDescending(t => t.CreatedDate)
                 .ToList();
+        }
+
+        private void RemoveFutureRecurringTodos(int createdFromId)
+        {
+            var futureTasks = _context.Todos
+                .Where(t => t.CreatedFrom == createdFromId &&
+                            t.StartDate > DateTime.Now)
+                .ToList();
+
+            if (futureTasks.Any()) _context.Todos.RemoveRange(futureTasks);
         }
 
         public IActionResult Privacy()
