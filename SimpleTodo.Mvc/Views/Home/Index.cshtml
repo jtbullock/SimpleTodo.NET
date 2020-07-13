@@ -1,0 +1,131 @@
+﻿@model SimpleTodo.Mvc.ViewModels.HomeViewModel;
+
+@section Styles
+{
+    <style type="text/css">
+        .box {
+            border: solid 1px rgb(187, 187, 187);
+            border-radius: 6px;
+            padding: 1em;
+        }
+
+        h2 {
+            font-size: 16pt;
+            font-weight: normal;
+        }
+
+        h3 {
+            border-bottom: solid 1px black;
+            font-size: 12pt;
+            font-weight: normal;
+            margin-bottom: 4px;
+            padding-bottom: 4px;
+        }
+
+        ul { padding-inline-start: 22px; }
+
+        .recurring-button {
+            color: rgb(199, 199, 199);
+            cursor: pointer;
+            display: inline-block;
+            margin-left: .25em;
+            padding: 2px;
+        }
+
+        .recurring-button:hover, .recurring-button.is-recurring { color: black; }
+    </style>
+}
+
+<div style="margin: 0 auto; width: 600px;">
+
+    <div class="box" style="margin-bottom: 1em; margin-top: 2em;">
+        <h2>Add Todo</h2>
+
+        <form method="post" autocomplete="off">
+            <input type="text" asp-for="NewTodoDescription"/>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h2>Today, @DateTime.Now.ToLongDateString()</h2>
+
+        @foreach (var todo in Model.Todos)
+        {
+            <div>
+                <label>
+                    <input type="checkbox"
+                           value="@todo.Id"
+                           id="todo-checkbox-@todo.Id"
+                           onclick="handleCheckboxClicked(event)"
+                           checked="@todo.IsComplete"/>
+
+                    &nbsp;@todo.Description
+                </label>
+                <div id="todo-recurring-button-@todo.Id"
+                     class="recurring-button @(todo.IsRecurring ? "is-recurring" : "")"
+                     onclick="toggleIsRecurring(@todo.Id)">
+                    <i class="fas fa-redo"></i>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="box" style="margin-top: 1em;">
+        <h2>Completed in Last Week</h2>
+
+        @foreach (var day in Model.LastFiveDaysTodos)
+        {
+            <h3>@day.Key.Date.ToLongDateString()</h3>
+
+            <ul>
+                @foreach (var todo in day)
+                {
+                    <li>@todo.Description</li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        function handleCheckboxClicked(event) {
+            fetch('/Home/SetTaskComplete',
+                {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: parseInt(event.target.value),
+                        isComplete: event.target.checked
+                    })
+                });
+        }
+
+        function toggleIsRecurring(todoId) {
+            fetch('/Home/SetTaskRecurring',
+                {
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: parseInt(todoId)
+                    })
+                });
+
+            var button = document.getElementById('todo-recurring-button-' + todoId);
+
+            if (button.classList.contains('is-recurring')) {
+                button.classList.remove('is-recurring');
+            } else {
+                button.classList.add('is-recurring');
+            }
+
+        }
+
+    </script>
+}

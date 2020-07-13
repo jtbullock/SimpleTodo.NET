@@ -10,6 +10,10 @@
 *.userosscache
 *.sln.docstates
 
+# .NET MVC Configuration
+appsettings.json
+appsettings.*.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -168,6 +172,8 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+PublishProfiles/
+serviceDependencies.*
 
 # Publish Web Output
 *.[Pp]ublish.xml
