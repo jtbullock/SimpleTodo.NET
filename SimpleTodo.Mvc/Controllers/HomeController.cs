@@ -44,6 +44,18 @@ namespace SimpleTodo.Mvc.Controllers
             return View(viewModel);
         }
 
+        [Authorize]
+        [HttpGet]
+        public IActionResult StandupReport()
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            return View(new StandupReportViewModel
+            {
+                TodaysTodos = GetTodosForToday(currentUserId),
+                YesterdaysTodos = GetCompletedTodosForDate(DateTime.Now.Date.AddDays(-1), currentUserId)
+            });
+        }
 
         [HttpPost]
         public IActionResult Index(HomeViewModel viewModel)
@@ -87,7 +99,7 @@ namespace SimpleTodo.Mvc.Controllers
             if (todo.IsRecurring && request.IsComplete)
                 _context.Add(CreateFutureTodo(todo));
 
-            if(todo.IsRecurring && !request.IsComplete)
+            if (todo.IsRecurring && !request.IsComplete)
                 RemoveFutureRecurringTodos(todo.Id);
 
             _context.SaveChanges();
@@ -106,13 +118,8 @@ namespace SimpleTodo.Mvc.Controllers
                 throw new UnauthorizedAccessException("You are not authorized to access this task.");
 
             if (todo.IsRecurring)
-            {
                 RemoveFutureRecurringTodos(todo.Id);
-            }
-            else if (todo.IsComplete)
-            {
-                _context.Todos.Add(CreateFutureTodo(todo));
-            }
+            else if (todo.IsComplete) _context.Todos.Add(CreateFutureTodo(todo));
 
             todo.IsRecurring = !todo.IsRecurring;
 
@@ -142,6 +149,16 @@ namespace SimpleTodo.Mvc.Controllers
                     t.OwnerUserId == userId &&
                     (!t.IsComplete || t.CompletedDate.HasValue && t.CompletedDate.Value.Date == DateTime.Now.Date) &&
                     t.StartDate.Date <= DateTime.Now.Date)
+                .OrderByDescending(t => t.CreatedDate)
+                .ToList();
+        }
+
+        private List<Todo> GetCompletedTodosForDate(DateTime date, string userId)
+        {
+            return _context.Todos
+                .Where(t =>
+                    t.OwnerUserId == userId && t.IsComplete && t.CompletedDate.HasValue &&
+                    t.CompletedDate.Value.Date == date.Date)
                 .OrderByDescending(t => t.CreatedDate)
                 .ToList();
         }
