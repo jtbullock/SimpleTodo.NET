@@ -24,7 +24,7 @@
 
         ul { padding-inline-start: 22px; }
 
-        .recurring-button {
+        .todo-action-button {
             color: rgb(199, 199, 199);
             cursor: pointer;
             display: inline-block;
@@ -32,7 +32,9 @@
             padding: 2px;
         }
 
-        .recurring-button:hover, .recurring-button.is-recurring { color: black; }
+            .todo-action-button:hover, .todo-action-button.show-as-active {
+                color: black;
+            }
     </style>
 }
 
@@ -63,9 +65,14 @@
                     &nbsp;@todo.Description
                 </label>
                 <div id="todo-recurring-button-@todo.Id"
-                     class="recurring-button @(todo.IsRecurring ? "is-recurring" : "")"
+                     class="todo-action-button @(todo.IsRecurring ? "show-as-active" : "")"
                      onclick="toggleIsRecurring(@todo.Id)">
                     <i class="fas fa-redo"></i>
+                </div>
+                <div id="todo-delete-button-@todo.Id"
+                     class="todo-action-button"
+                     onclick="deleteTodo(@todo.Id)">
+                    <i class="fas fa-trash"></i>
                 </div>
             </div>
         }

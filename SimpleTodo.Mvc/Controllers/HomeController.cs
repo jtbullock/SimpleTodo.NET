@@ -87,7 +87,7 @@ namespace SimpleTodo.Mvc.Controllers
             if (todo.IsRecurring && request.IsComplete)
                 _context.Add(CreateFutureTodo(todo));
 
-            if(todo.IsRecurring && !request.IsComplete)
+            if (todo.IsRecurring && !request.IsComplete)
                 RemoveFutureRecurringTodos(todo.Id);
 
             _context.SaveChanges();
@@ -106,13 +106,8 @@ namespace SimpleTodo.Mvc.Controllers
                 throw new UnauthorizedAccessException("You are not authorized to access this task.");
 
             if (todo.IsRecurring)
-            {
                 RemoveFutureRecurringTodos(todo.Id);
-            }
-            else if (todo.IsComplete)
-            {
-                _context.Todos.Add(CreateFutureTodo(todo));
-            }
+            else if (todo.IsComplete) _context.Todos.Add(CreateFutureTodo(todo));
 
             todo.IsRecurring = !todo.IsRecurring;
 
