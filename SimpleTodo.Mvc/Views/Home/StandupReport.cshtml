@@ -1,0 +1,40 @@
+﻿@model SimpleTodo.Mvc.ViewModels.StandupReportViewModel
+
+@section Styles
+{
+    <style type="text/css">
+        .box {
+            border: solid 1px rgb(187, 187, 187);
+            border-radius: 6px;
+            padding: 1em;
+        }
+
+        h2 {
+            font-size: 16pt;
+            font-weight: normal;
+        }
+    </style>
+}
+
+<div style="margin: 0 auto; width: 600px;">
+
+    <div class="box">
+
+        <h2>Standup Report</h2>
+
+        <textarea style="width: 100%" rows="20">
+Yesterday:
+@foreach (var todo in Model.YesterdaysTodos)
+{
+    @:  &#9679; @todo.Description
+}
+
+Today:
+@foreach (var todo in Model.TodaysTodos)
+{
+    @:  &#9679; @todo.Description
+}</textarea>
+
+    </div>
+
+</div >
